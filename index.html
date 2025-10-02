@@ -3,34 +3,79 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Aplikasi Absensi SD</title>
+  <title>Aplikasi Absensi SD - XLSX</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS (XLSX) CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
+  <h1>📚 Aplikasi Absensi SD (XLSX)</h1>
+
+  <!-- Login -->
   <div id="login">
     <h2>Login</h2>
-    <input id="username" placeholder="Username"><br>
-    <input id="password" type="password" placeholder="Password"><br>
-    <button onclick="login()">Login</button>
+    <input type="text" id="username" placeholder="Username"><br><br>
+    <input type="password" id="password" placeholder="Password"><br><br>
+    <button class="primary" onclick="login()">Login</button>
   </div>
 
-  <div id="adminPanel" style="display:none">
+  <!-- Panel Admin -->
+  <div id="adminPanel">
     <h2>Panel Admin</h2>
-    <h3>Tambah Guru</h3>
-    <input id="guruUser" placeholder="Username guru">
-    <input id="guruPass" placeholder="Password guru">
+
+    <h3>Tambah Siswa Baru</h3>
+    <input type="text" id="namaBaru" placeholder="Nama siswa">
+    <select id="genderBaru">
+      <option value="L">Laki-laki</option>
+      <option value="P">Perempuan</option>
+    </select>
+    <select id="kelasBaru"></select>
+    <button class="primary" onclick="tambahSiswa()">Tambah</button>
+
+    <h3>Tambah Akun Guru</h3>
+    <input type="text" id="guruUser" placeholder="Username Guru">
+    <input type="password" id="guruPass" placeholder="Password Guru">
     <select id="guruKelas"></select>
-    <button onclick="tambahGuru()">Tambah Guru</button>
-    <div id="guruList"></div>
-    <br>
-    <button onclick="logout()">Logout</button>
+    <button class="primary" onclick="tambahGuru()">Tambah Guru</button>
+
+    <h3>Daftar Akun Guru</h3>
+    <ul id="daftarGuru"></ul>
+
+    <h3>Template Siswa (XLSX)</h3>
+    <button class="secondary" onclick="downloadTemplateXLSX()">⬇️ Download Template Excel</button><br><br>
+    <input type="file" id="uploadFileXlsx" accept=".xlsx,.xls">
+    <button class="primary" onclick="uploadTemplateXLSX()">⬆️ Upload Excel</button>
+
+    <h3>Grafik Absensi</h3>
+    <select id="kelasGrafik">
+      <option value="Semua">Semua</option>
+    </select>
+    <button class="secondary" onclick="tampilkanGrafikAdmin()">Lihat Grafik</button>
+
+    <br><br>
+    <button class="secondary" onclick="logout()">Logout</button>
   </div>
 
-  <div id="guruPanel" style="display:none">
-    <h2>Panel Guru</h2>
-    <div id="absensiTabel"></div>
-    <br>
-    <button onclick="logout()">Logout</button>
+  <!-- Panel Guru -->
+  <div id="guruPanel">
+    <h2>Absensi</h2>
+    <div id="kelas-container"></div>
+    <div>
+      <button class="primary" onclick="simpanAbsensi()">💾 Simpan Absensi</button>
+      <button class="secondary" onclick="unduhCSV()">⬇️ Unduh CSV</button>
+      <button class="secondary" onclick="window.print()">🖨️ Cetak Laporan</button>
+      <button class="secondary" onclick="tampilkanGrafikGuru()">📊 Lihat Grafik</button>
+      <button class="secondary" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Panel Grafik -->
+  <div id="grafikPanel">
+    <h2>📊 Grafik Absensi</h2>
+    <canvas id="pieChart"></canvas>
+    <canvas id="barChart"></canvas>
+    <button class="secondary" onclick="tutupGrafik()">Tutup Grafik</button>
   </div>
 
   <script src="script.js"></script>
