@@ -124,9 +124,9 @@
       const container = document.getElementById("kelas-container");
       container.innerHTML = "";
       if (!dataKelas[kelas]) return;
-      let html = <h3>${kelas}</h3><table><tr><th>Nama</th><th>Gender</th><th>Status</th></tr>;
+      let html = `<h3>${kelas}</h3><table><tr><th>Nama</th><th>Gender</th><th>Status</th></tr>`;
       dataKelas[kelas].forEach(s => {
-        const key = ${kelas}-${s.nama};
+        const key = `${kelas}-${s.nama}`;
         const saved = localStorage.getItem(key) || "Hadir";
         html += `
           <tr>
@@ -134,7 +134,7 @@
             <td>${s.gender}</td>
             <td>
               <select id="${key}">
-                ${statusOptions.map(opt => <option value="${opt}" ${saved===opt?"selected":""}>${opt}</option>).join("")}
+                ${statusOptions.map(opt => `<option value="${opt}" ${saved===opt?"selected":""}>${opt}</option>`).join("")}
               </select>
             </td>
           </tr>`;
@@ -150,7 +150,7 @@
       const tgl = today.toISOString().split("T")[0]; // YYYY-MM-DD
 
       dataKelas[userKelas].forEach(s => {
-        const key = ${userKelas}-${s.nama};
+        const key = `${userKelas}-${s.nama}`;
         const val = document.getElementById(key).value;
         localStorage.setItem(key, val);
 
@@ -172,7 +172,7 @@
       if (!userKelas) return;
       let csv = "Tanggal,Kelas,Nama,Status\n";
       absensiLog.filter(l => l.kelas === userKelas).forEach(l => {
-        csv += ${l.tanggal},${l.kelas},${l.nama},${l.status}\n;
+        csv += `${l.tanggal},${l.kelas},${l.nama},${l.status}\n`;
       });
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
@@ -255,7 +255,7 @@
           datasets: [{ data: Object.values(countStatus),
             backgroundColor: ["#22c55e","#f59e0b","#3b82f6","#ef4444","#8b5cf6"] }]
         },
-        options: { plugins: { title: { display: true, text: Rekap Bulan Ini (${judul}) } } }
+        options: { plugins: { title: { display: true, text: `Rekap Bulan Ini (${judul})` } } }
       });
 
       // Hitung per bulan
@@ -268,7 +268,7 @@
           labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"],
           datasets: [{ label:"Jumlah Absensi", data: perBulan, backgroundColor:"#2563eb" }]
         },
-        options: { plugins: { title: { display: true, text: Rekap Tahunan (${judul}) } } }
+        options: { plugins: { title: { display: true, text: `Rekap Tahunan (${judul})` } } }
       });
     }
 
