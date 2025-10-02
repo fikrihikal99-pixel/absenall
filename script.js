@@ -246,3 +246,10 @@ function checkSession(){
 }
 
 window.onload = () => { initClassSelectors(); checkSession(); };
+function downloadTemplateSiswa(){
+  const wb = XLSX.utils.book_new();
+  const ws_data = [["Nama","Kelas"]]; // Header kolom
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  XLSX.utils.book_append_sheet(wb, ws, "Template");
+  XLSX.writeFile(wb, "template_siswa.xlsx");
+}
