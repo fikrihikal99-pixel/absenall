@@ -1,75 +1,103 @@
 
-// ======= CONFIG =======
 const CLASS_LIST = ["1A","1B","2A","2B","3A","3B","3C","4A","4B","5A","5B","6A","6B"];
 
-// ======= DATA =======
-let dataKelas = JSON.parse(localStorage.getItem("dataKelas")) || (function(){
-  const o = {};
-  CLASS_LIST.forEach(c => o["Kelas "+c] = []);
-  return o;
-})();
 let akunGuru = JSON.parse(localStorage.getItem("akunGuru")) || [];
-let absensiLog = JSON.parse(localStorage.getItem("absensiLog")) || [];
-const statusOptions = ["Hadir", "Izin", "Sakit", "Alpha", "Terlambat"];
-let userRole = null, userKelas = null;
+let userRole = null;
+let userKelas = null;
 
-// ======= UTILS =======
-function saveAll(){
-  localStorage.setItem("dataKelas", JSON.stringify(dataKelas));
-  localStorage.setItem("akunGuru", JSON.stringify(akunGuru));
-  localStorage.setItem("absensiLog", JSON.stringify(absensiLog));
-}
-
-// initialize select lists for classes in UI
+// isi select kelas
 function initClassSelectors(){
-  const kelasBaru = document.getElementById("kelasBaru");
   const guruKelas = document.getElementById("guruKelas");
-  const kelasGrafik = document.getElementById("kelasGrafik");
-  if(!kelasBaru || !guruKelas || !kelasGrafik) return;
-  kelasBaru.innerHTML = "";
+  if(!guruKelas) return;
   guruKelas.innerHTML = "";
-  kelasGrafik.innerHTML = "";
   CLASS_LIST.forEach(c => {
-    const label = "Kelas "+c;
-    const opt1 = document.createElement("option"); opt1.value = label; opt1.textContent = label; kelasBaru.appendChild(opt1);
-    const opt2 = document.createElement("option"); opt2.value = label; opt2.textContent = label; guruKelas.appendChild(opt2);
-    const opt3 = document.createElement("option"); opt3.value = label; opt3.textContent = label; kelasGrafik.appendChild(opt3);
+    let opt = document.createElement("option");
+    opt.value = "Kelas "+c;
+    opt.textContent = "Kelas "+c;
+    guruKelas.appendChild(opt);
   });
-  // ensure "Semua" stays first
-  const first = document.createElement("option"); first.value = "Semua"; first.textContent = "Semua"; kelasGrafik.insertBefore(first, kelasGrafik.firstChild);
 }
 
-// ======= LOGIN =======
+// login
 function login(){
   const u = document.getElementById("username").value.trim();
   const p = document.getElementById("password").value.trim();
   if(u === "admin" && p === "1234"){
     userRole = "admin";
-    document.getElementById("login").style.display = "none";
-    document.getElementById("adminPanel").style.display = "block";
-    document.getElementById("grafikPanel").style.display = "none";
-    initClassSelectors(); // FIX: panggil ulang saat admin login
-    renderGuruList();
+    localStorage.setItem("session", JSON.stringify({role:"admin"}));
+    showAdminPanel();
   } else {
     const guru = akunGuru.find(g => g.username === u && g.password === p);
     if(guru){
       userRole = "guru";
       userKelas = guru.kelas;
-      document.getElementById("login").style.display = "none";
-      document.getElementById("guruPanel").style.display = "block";
-      renderTabel(userKelas);
+      localStorage.setItem("session", JSON.stringify({role:"guru",kelas:userKelas}));
+      showGuruPanel();
     } else {
       alert("❌ Username/Password salah!");
     }
   }
 }
+
+function showAdminPanel(){
+  document.getElementById("login").style.display = "none";
+  document.getElementById("adminPanel").style.display = "block";
+  document.getElementById("guruPanel").style.display = "none";
+  initClassSelectors();
+  renderGuruList();
+}
+function showGuruPanel(){
+  document.getElementById("login").style.display = "none";
+  document.getElementById("adminPanel").style.display = "none";
+  document.getElementById("guruPanel").style.display = "block";
+  document.getElementById("absensiTabel").textContent = "Absensi untuk "+userKelas;
+}
+
 function logout(){
+  localStorage.removeItem("session");
   userRole = null; userKelas = null;
   document.getElementById("login").style.display = "block";
   document.getElementById("adminPanel").style.display = "none";
   document.getElementById("guruPanel").style.display = "none";
-  document.getElementById("grafikPanel").style.display = "none";
 }
 
-// (the rest of script.js is unchanged, but with initClassSelectors fix at login)
-// For brevity, reuse previous code for other functions... 
+// tambah guru
+function tambahGuru(){
+  const u = document.getElementById("guruUser").value.trim();
+  const p = document.getElementById("guruPass").value.trim();
+  const k = document.getElementById("guruKelas").value;
+  if(u && p){
+    akunGuru.push({username:u, password:p, kelas:k});
+    localStorage.setItem("akunGuru", JSON.stringify(akunGuru));
+    renderGuruList();
+    alert("✅ Guru ditambahkan!");
+  }
+}
+function renderGuruList(){
+  const div = document.getElementById("guruList");
+  div.innerHTML = "";
+  akunGuru.forEach(g => {
+    const d = document.createElement("div");
+    d.textContent = g.username+" ("+g.kelas+")";
+    div.appendChild(d);
+  });
+}
+
+// cek session saat load
+function checkSession(){
+  const sess = JSON.parse(localStorage.getItem("session"));
+  if(sess){
+    if(sess.role === "admin"){
+      showAdminPanel();
+    } else if(sess.role === "guru"){
+      userRole = "guru";
+      userKelas = sess.kelas;
+      showGuruPanel();
+    }
+  }
+}
+
+window.onload = () => {
+  initClassSelectors();
+  checkSession();
+};

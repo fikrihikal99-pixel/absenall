@@ -1,13 +1,4 @@
 
-body { font-family: Arial, sans-serif; margin: 20px; }
-h1, h2 { color: #2563eb; }
-table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-table, th, td { border: 1px solid #ccc; }
-th, td { padding: 8px; text-align: center; }
-select, input { padding: 4px; }
-button { margin: 5px; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; }
-button.primary { background: #2563eb; color: white; }
-button.secondary { background: #e0e7ff; color: #2563eb; }
-button.danger { background: #ef4444; color: white; }
-#login, #adminPanel, #guruPanel, #grafikPanel { display: none; }
-canvas { max-width: 800px; margin: 20px auto; display: block; }
+body { font-family: Arial, sans-serif; margin:20px; }
+h2 { background:#2196F3; color:white; padding:10px; }
+button { margin:5px; padding:5px 10px; }
