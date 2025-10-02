@@ -1,59 +1,79 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Aplikasi Absensi SD v5</title>
+  <title>Aplikasi Absensi SD v5.1</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-  <h1>Aplikasi Absensi SD</h1>
+  <h1>📚 Aplikasi Absensi SD - v5.1</h1>
 
-  <!-- Login -->
-  <div id="loginPanel">
+  <div id="loginPanel" class="card">
     <h2>Login</h2>
-    <input type="text" id="username" placeholder="Username"><br>
-    <input type="password" id="password" placeholder="Password"><br>
-    <button onclick="login()">Login</button>
+    <input id="username" placeholder="Username"><br>
+    <input id="password" type="password" placeholder="Password"><br>
+    <button onclick="login()" class="primary">Login</button>
   </div>
 
-  <!-- Admin Panel -->
-  <div id="adminPanel" style="display:none">
+  <div id="adminPanel" class="card" style="display:none">
     <h2>Panel Admin</h2>
-    <button onclick="logout()">Logout</button><br><br>
-
-    <h3>Tambah Guru</h3>
-    <input type="text" id="guruUsername" placeholder="Username Guru">
-    <input type="password" id="guruPassword" placeholder="Password Guru">
-    <select id="guruKelas"></select>
-    <button onclick="tambahGuru()">Tambah</button>
-
-    <h3>Template Siswa</h3>
-    <button onclick="downloadTemplateSiswa()">Download Template Siswa (XLSX)</button>
-
-    <h3>Upload Data Siswa</h3>
-    <input type="file" id="uploadSiswa" accept=".xlsx" onchange="uploadSiswa(this)">
+    <div class="row">
+      <div>
+        <h3>Tambah Siswa</h3>
+        <input id="namaBaru" placeholder="Nama siswa"><br>
+        <select id="genderBaru"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select><br>
+        <select id="kelasBaru"></select><br>
+        <button onclick="tambahSiswa()" class="primary">Tambah Siswa</button>
+      </div>
+      <div>
+        <h3>Tambah Akun Guru</h3>
+        <input id="guruUser" placeholder="Username guru"><br>
+        <input id="guruPass" placeholder="Password guru"><br>
+        <select id="guruKelas"></select><br>
+        <button onclick="tambahGuru()" class="primary">Tambah Guru</button>
+      </div>
+    </div>
 
     <h3>Daftar Guru</h3>
-    <ul id="guruList"></ul>
+    <ul id="daftarGuru"></ul>
+
+    <h3>Template & Upload</h3>
+    <button onclick="downloadTemplateXLSX()" class="secondary">⬇️ Download Template Siswa (XLSX)</button>
+    <input id="uploadFileXlsx" type="file" accept=".xlsx,.xls">
+    <button onclick="uploadTemplateXLSX()" class="primary">⬆️ Upload Excel</button>
+
+    <h3>Grafik Absensi</h3>
+    <select id="kelasGrafik"><option value="Semua">Semua</option></select>
+    <button onclick="tampilkanGrafikAdmin()" class="secondary">Lihat Grafik</button>
+
+    <h3>Export</h3>
+    <button onclick="exportAllCSV()">⬇️ Unduh Semua Absensi (CSV)</button>
+
+    <br><br>
+    <button onclick="logout()" class="danger">Logout</button>
   </div>
 
-  <!-- Guru Panel -->
-  <div id="guruPanel" style="display:none">
+  <div id="guruPanel" class="card" style="display:none">
     <h2>Panel Guru</h2>
-    <button onclick="logout()">Logout</button>
-    <h3 id="kelasGuru"></h3>
-
+    <div id="infoGuru"></div>
     <h3>Absensi Harian</h3>
-    <table id="absensiTable" border="1">
-      <thead><tr><th>Nama</th><th>Hadir</th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <button onclick="simpanAbsensi()">Simpan Absensi</button>
+    <label for="tanggalInput">Tanggal:</label>
+    <input type="date" id="tanggalInput"><br><br>
+    <div id="tabelAbsensi"></div>
+    <button onclick="simpanAbsensi()" class="primary">💾 Simpan Absensi</button>
+    <button onclick="unduhCSV_kelas(currentKelas)" class="secondary">⬇️ Unduh CSV Kelas</button>
+    <button onclick="tampilkanGrafikGuru()" class="secondary">📊 Lihat Grafik</button>
+    <button onclick="logout()" class="danger">Logout</button>
+  </div>
 
-    <h3>Diagram Kehadiran Bulanan</h3>
-    <canvas id="absensiChart"></canvas>
+  <div id="grafikPanel" class="card" style="display:none">
+    <h2>📊 Grafik Absensi</h2>
+    <canvas id="pieChart"></canvas>
+    <canvas id="barChart"></canvas>
+    <button onclick="tutupGrafik()" class="secondary">Tutup Grafik</button>
   </div>
 
   <script src="script.js"></script>
