@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Aplikasi Absensi SD</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<h1>📚 Aplikasi Absensi SD</h1>
+
+
+<!-- Login -->
+<div id="login">
+<h2>Login</h2>
+<input type="text" id="username" placeholder="Username"><br><br>
+<input type="password" id="password" placeholder="Password"><br><br>
+<button class="primary" onclick="login()">Login</button>
+</div>
+
+
+<!-- Panel Admin -->
+<div id="adminPanel">
+<h2>Panel Admin</h2>
+<!-- Tambah siswa, guru, template, grafik sama seperti kode lengkap sebelumnya -->
+</div>
+
+
+<!-- Panel Guru -->
+<div id="guruPanel">
+<h2>Absensi</h2>
+<div id="kelas-container"></div>
+<div>
+<button class="primary" onclick="simpanAbsensi()">💾 Simpan Absensi</button>
+<button class="secondary" onclick="unduhCSV()">⬇️ Unduh CSV</button>
+<button class="secondary" onclick="window.print()">🖨️ Cetak Laporan</button>
+<button class="secondary" onclick="tampilkanGrafikGuru()">📊 Lihat Grafik</button>
+<button class="secondary" onclick="logout()">Logout</button>
+</div>
+</div>
+
+
+<!-- Panel Grafik -->
+<div id="grafikPanel">
+<h2>📊 Grafik Absensi</h2>
+<canvas id="pieChart"></canvas>
+<canvas id="barChart"></canvas>
+<button class="secondary" onclick="tutupGrafik()">Tutup Grafik</button>
+</div>
+
+
+<script src="script.js"></script>
+</body>
+</html>
