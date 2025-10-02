@@ -10,4 +10,4 @@ button.primary { background: #2563eb; color: white; }
 button.secondary { background: #e0e7ff; color: #2563eb; }
 button.danger { background: #ef4444; color: white; }
 #login, #adminPanel, #guruPanel, #grafikPanel { display: none; }
-canvas { max-width: 600px; margin: 20px auto; display: block; }
+canvas { max-width: 800px; margin: 20px auto; display: block; }

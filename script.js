@@ -1,23 +1,38 @@
 
+// ======= CONFIG =======
+const CLASS_LIST = ["1A","1B","2A","2B","3A","3B","3C","4A","4B","5A","5B","6A","6B"];
+
 // ======= DATA =======
-let dataKelas = JSON.parse(localStorage.getItem("dataKelas")) || {
-  "Kelas 1": [{nama: "Ani", gender: "P"}, {nama: "Budi", gender: "L"}],
-  "Kelas 2": [{nama: "Cici", gender: "P"}, {nama: "Dedi", gender: "L"}],
-  "Kelas 3": [{nama: "Eka", gender: "P"}, {nama: "Fajar", gender: "L"}],
-  "Kelas 4": [{nama: "Gina", gender: "P"}, {nama: "Hadi", gender: "L"}],
-  "Kelas 5": [], "Kelas 6": []
-};
+let dataKelas = JSON.parse(localStorage.getItem("dataKelas")) || (function(){
+  const o = {};
+  CLASS_LIST.forEach(c => o["Kelas "+c] = []);
+  return o;
+})();
 let akunGuru = JSON.parse(localStorage.getItem("akunGuru")) || [];
 let absensiLog = JSON.parse(localStorage.getItem("absensiLog")) || [];
-
 const statusOptions = ["Hadir", "Izin", "Sakit", "Alpha", "Terlambat"];
 let userRole = null, userKelas = null;
 
-// ======= UTIL =======
+// ======= UTILS =======
 function saveAll(){
   localStorage.setItem("dataKelas", JSON.stringify(dataKelas));
   localStorage.setItem("akunGuru", JSON.stringify(akunGuru));
   localStorage.setItem("absensiLog", JSON.stringify(absensiLog));
+}
+
+// initialize select lists for classes in UI
+function initClassSelectors(){
+  const kelasBaru = document.getElementById("kelasBaru");
+  const guruKelas = document.getElementById("guruKelas");
+  const kelasGrafik = document.getElementById("kelasGrafik");
+  CLASS_LIST.forEach(c => {
+    const label = "Kelas "+c;
+    const opt1 = document.createElement("option"); opt1.value = label; opt1.textContent = label; kelasBaru.appendChild(opt1);
+    const opt2 = document.createElement("option"); opt2.value = label; opt2.textContent = label; guruKelas.appendChild(opt2);
+    const opt3 = document.createElement("option"); opt3.value = label; opt3.textContent = label; kelasGrafik.appendChild(opt3);
+  });
+  // ensure "Semua" stays first
+  const first = document.createElement("option"); first.value = "Semua"; first.textContent = "Semua"; kelasGrafik.insertBefore(first, kelasGrafik.firstChild);
 }
 
 // ======= LOGIN =======
@@ -51,7 +66,7 @@ function logout(){
   document.getElementById("grafikPanel").style.display = "none";
 }
 
-// ======= GURU =======
+// ======= RENDER TABLE =======
 function renderTabel(kelas){
   const container = document.getElementById("kelas-container");
   container.innerHTML = "";
@@ -67,8 +82,10 @@ function renderTabel(kelas){
   html += "</table>";
   container.innerHTML = html;
 }
+
+// ======= SAVE ABSEN =======
 function simpanAbsensi(){
-  if(!userKelas) return;
+  if(!userKelas){ alert("Tidak ada kelas terdaftar"); return; }
   const today = new Date(); const tgl = today.toISOString().split("T")[0];
   dataKelas[userKelas].forEach(s => {
     const key = `${userKelas}-${s.nama}`;
@@ -79,36 +96,39 @@ function simpanAbsensi(){
   saveAll();
   alert("✅ Absensi tersimpan!");
 }
+
+// ======= CSV DOWNLOAD =======
 function unduhCSV(){
-  if(!userKelas) return;
-  let csv = "Tanggal,Kelas,Nama,Status\n";
-  absensiLog.filter(l => l.kelas === userKelas).forEach(l => { csv += `${l.tanggal},${l.kelas},${l.nama},${l.status}\n`; });
+  if(!userKelas){ alert("Tidak ada kelas terdaftar"); return; }
+  let csv = "Tanggal,Kelas,Nama,JK,Status\n";
+  absensiLog.filter(l => l.kelas === userKelas).forEach(l => { csv += `${l.tanggal},${l.kelas},${l.nama},${getGender(l.kelas,l.nama)||""},${l.status}\n`; });
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href = url; a.download = "absensi_" + userKelas + ".csv"; a.click(); URL.revokeObjectURL(url);
+  const a = document.createElement("a"); a.href = url; a.download = "absensi_"+userKelas+".csv"; a.click(); URL.revokeObjectURL(url);
 }
 
-// ======= ADMIN =======
+function getGender(kelas, nama){
+  const list = dataKelas[kelas]||[];
+  const s = list.find(x=>x.nama===nama);
+  return s? s.gender : "";
+}
+
+// ======= ADMIN: tambah siswa/guru =======
 function tambahSiswa(){
   const nama = document.getElementById("namaBaru").value.trim();
   const gender = document.getElementById("genderBaru").value;
   const kelas = document.getElementById("kelasBaru").value;
   if(!nama){ alert("Nama tidak boleh kosong!"); return; }
-  dataKelas[kelas].push({nama, gender});
-  saveAll();
-  document.getElementById("namaBaru").value = "";
-  alert("✅ Siswa baru ditambahkan!");
+  if(!dataKelas[kelas]){ alert("Kelas tidak valid"); return; }
+  dataKelas[kelas].push({nama, gender}); saveAll();
+  document.getElementById("namaBaru").value = ""; alert("✅ Siswa baru ditambahkan!");
 }
 function tambahGuru(){
   const user = document.getElementById("guruUser").value.trim();
   const pass = document.getElementById("guruPass").value.trim();
   const kelas = document.getElementById("guruKelas").value;
   if(!user || !pass){ alert("Username & Password wajib diisi!"); return; }
-  akunGuru.push({username: user, password: pass, kelas});
-  saveAll();
-  document.getElementById("guruUser").value = ""; document.getElementById("guruPass").value = "";
-  renderGuruList();
-  alert("✅ Akun guru ditambahkan!");
+  akunGuru.push({username: user, password: pass, kelas}); saveAll(); document.getElementById("guruUser").value = ""; document.getElementById("guruPass").value = ""; renderGuruList(); alert("✅ Akun guru ditambahkan!");
 }
 function hapusGuru(i){ if(!confirm("Hapus akun guru ini?")) return; akunGuru.splice(i,1); saveAll(); renderGuruList(); }
 function resetPass(i){ akunGuru[i].password = "1234"; saveAll(); renderGuruList(); alert("✅ Password direset ke '1234'"); }
@@ -121,29 +141,45 @@ function renderGuruList(){
   });
 }
 
-// ======= TEMPLATE CSV =======
-function downloadTemplate(){
-  const csv = "Nama,Kelas\n";
-  const blob = new Blob([csv], { type: "text/csv" });
+// ======= XLSX TEMPLATE DOWNLOAD / UPLOAD =======
+function downloadTemplateXLSX(){
+  const ws_data = [["Nama","Kelas"]];
+  ws_data.push(["Budi","1A"]);
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  XLSX.utils.book_append_sheet(wb, ws, "Siswa");
+  const wbout = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+  const blob = new Blob([wbout], {type: "application/octet-stream"});
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href = url; a.download = "template_siswa.csv"; a.click(); URL.revokeObjectURL(url);
+  const a = document.createElement("a"); a.href = url; a.download = "template_siswa.xlsx"; a.click(); URL.revokeObjectURL(url);
 }
-function uploadTemplate(){
-  const fileInput = document.getElementById("uploadFile");
-  if(!fileInput.files.length){ alert("❌ Pilih file CSV terlebih dahulu!"); return; }
-  const file = fileInput.files[0]; const reader = new FileReader();
+
+function uploadTemplateXLSX(){
+  const fi = document.getElementById("uploadFileXlsx");
+  if(!fi.files.length){ alert("Pilih file .xlsx terlebih dahulu"); return; }
+  const file = fi.files[0];
+  const reader = new FileReader();
   reader.onload = function(e){
-    const text = e.target.result; const lines = text.trim().split("\\n");
-    for(let i=1;i<lines.length;i++){
-      if(!lines[i].trim()) continue;
-      const cols = lines[i].split(",");
-      const nama = (cols[0]||"").trim();
-      const kelas = (cols[1]||"").trim();
-      if(nama && kelas && dataKelas[kelas]) dataKelas[kelas].push({nama: nama, gender: "L"});
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, {type: 'array'});
+    const firstSheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheetName];
+    const json = XLSX.utils.sheet_to_json(worksheet, {header:1});
+    for(let i=1;i<json.length;i++){
+      const row = json[i];
+      if(!row || row.length < 2) continue;
+      const nama = String(row[0]).trim();
+      const kelasShort = String(row[1]).trim();
+      const kelas = "Kelas "+kelasShort;
+      if(nama && CLASS_LIST.includes(kelasShort) && dataKelas[kelas]){
+        dataKelas[kelas].push({nama, gender: "L"});
+      }
     }
-    saveAll(); alert("✅ Siswa berhasil ditambahkan dari template!"); fileInput.value = "";
+    saveAll();
+    alert("✅ Upload selesai. Siswa ditambahkan sesuai file.");
+    fi.value = "";
   };
-  reader.readAsText(file);
+  reader.readAsArrayBuffer(file);
 }
 
 // ======= GRAFIK =======
@@ -177,5 +213,6 @@ function tampilkanGrafikAdmin(){ const kelas = document.getElementById("kelasGra
 function tutupGrafik(){ document.getElementById("grafikPanel").style.display = "none"; if(userRole==="admin") document.getElementById("adminPanel").style.display = "block"; else document.getElementById("guruPanel").style.display = "block"; }
 
 // ======= INIT =======
+initClassSelectors();
 document.getElementById("login").style.display = "block";
 saveAll();
