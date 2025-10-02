@@ -9,7 +9,8 @@
   <!-- SheetJS (XLSX) CDN -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
-<body>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <body>
   <h1>📚 Aplikasi Absensi SD (XLSX)</h1>
 
   <!-- Login -->
@@ -23,6 +24,10 @@
   <!-- Panel Admin -->
   <div id="adminPanel">
     <h2>Panel Admin</h2>
+<div id="adminPanel" style="display:none">
+    <button onclick="downloadTemplateSiswa()">Download Template Siswa (XLSX)</button>
+    ...
+</div>
 
     <h3>Tambah Siswa Baru</h3>
     <input type="text" id="namaBaru" placeholder="Nama siswa">
